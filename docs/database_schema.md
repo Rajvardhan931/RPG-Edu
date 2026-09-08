@@ -7,6 +7,8 @@
 CREATE TABLE profiles (
     id UUID REFERENCES auth.users ON DELETE CASCADE PRIMARY KEY,
     username TEXT UNIQUE,
+    knowledge_xp INTEGER DEFAULT 0,
+    capability_xp INTEGER DEFAULT 0,
     knowledge_level INTEGER DEFAULT 1,
     capability_level INTEGER DEFAULT 1,
     total_xp INTEGER DEFAULT 0,
