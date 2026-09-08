@@ -1,0 +1,30 @@
+# .gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+env/
+.env
+.env.local
+.env.*.local
+
+# Next.js / Node
+node_modules/
+.next/
+out/
+build/
+.env*.local
+
+# IDE/OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Database/Logs
+*.log
+*.sqlite3
