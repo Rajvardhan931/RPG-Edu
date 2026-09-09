@@ -17,12 +17,17 @@ def signup():
         return jsonify({"error": "Email, password, and username are required"}), 400
 
     try:
+        print(f"API: Starting signup for {email}")
         # 1. Create user in Supabase Auth
         auth_response = auth_service.signup(email, password, username)
+        print(f"API: Auth service response received")
         user = auth_response.user
+        print(f"API: User ID is {user.id}")
 
         # 2. Create the RPG character profile
+        print(f"API: Creating profile for {user.id}")
         user_repo.create_profile(user.id, username)
+        print(f"API: Profile creation successful")
 
         return jsonify({
             "message": "Adventurer registered successfully!",
@@ -33,6 +38,9 @@ def signup():
             }
         }), 201
     except Exception as e:
+        print(f"API ERROR during signup: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
 @auth_bp.route('/login', methods=['POST'])

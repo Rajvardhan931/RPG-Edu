@@ -10,6 +10,20 @@ class UserRepository(BaseRepository):
         """
         Fetches a user's complete profile, including dual-track levels.
         """
+        # DEMO BYPASS: Return a mock profile for the demo user
+        if user_id == "demo-user-id-123":
+            return {
+                "id": user_id,
+                "username": "DemoAdventurer",
+                "knowledge_xp": 500,
+                "capability_xp": 300,
+                "knowledge_level": 3,
+                "capability_level": 2,
+                "total_xp": 800,
+                "class_type": "Novice",
+                "ai_guidance_enabled": True
+            }
+
         filters = {"id": user_id}
         results = self.select(self.TABLE, filters=filters)
         return results[0] if results else None
@@ -18,6 +32,9 @@ class UserRepository(BaseRepository):
         """
         Updates arbitrary fields in the user profile.
         """
+        if user_id == "demo-user-id-123":
+            return True # Mock success for demo user
+
         filters = {"id": user_id}
         return self.update(self.TABLE, filters=filters, data=data)
 
@@ -38,6 +55,10 @@ class UserRepository(BaseRepository):
         """
         Initializes a new character profile upon signup.
         """
+        # DEMO BYPASS: Avoid DB insert for demo user
+        if user_id == "demo-user-id-123":
+            return True
+
         data = {
             "id": user_id,
             "username": username,

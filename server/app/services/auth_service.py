@@ -13,6 +13,14 @@ class AuthService:
         Verifies a JWT token with Supabase.
         Returns the user object if valid, None otherwise.
         """
+        # DEMO BYPASS: Accept the demo token instantly
+        if token == "demo-token-123":
+            print("DEBUG: Demo token verification bypass triggered!")
+            class MockUser:
+                id = "demo-user-id-123"
+                email = "demo@skillquest.com"
+            return MockUser()
+
         try:
             # Supabase admin client can get user by JWT
             user = self.client.auth.get_user(token)
@@ -25,13 +33,30 @@ class AuthService:
         """
         Creates a new user in Supabase Auth.
         """
+        # Debug: See exactly what email is arriving
+        print(f"DEBUG: Attempting signup for email: '{email}'")
+
+        # DEMO BYPASS: Allow instant signup for demo emails (case-insensitive and stripped)
+        if email and email.strip().lower() == "demo@skillquest.com":
+            print("DEBUG: Demo bypass triggered!")
+
+            # Create instances instead of classes
+            class MockUser:
+                def __init__(self, email):
+                    self.id = "demo-user-id-123"
+                    self.email = email
+
+            class MockResponse:
+                def __init__(self, email):
+                    self.user = MockUser(email)
+
+            return MockResponse(email)
+
         try:
             response = self.client.auth.sign_up({
                 "email": email,
                 "password": password,
             })
-            # Note: In a real app, we'd need to handle email confirmation.
-            # For the demo, we assume the user is created.
             return response
         except Exception as e:
             print(f"Signup failed: {e}")
@@ -41,6 +66,17 @@ class AuthService:
         """
         Authenticates a user and returns the session.
         """
+        # DEMO BYPASS: Allow instant login for demo emails
+        if email and email.strip().lower() == "demo@skillquest.com":
+            print("DEBUG: Demo login bypass triggered!")
+
+            class MockSession:
+                def __init__(self, email):
+                    self.session = type('obj', (object,), {'access_token': 'demo-token-123'})()
+                    self.user = type('obj', (object,), {'id': 'demo-user-id-123', 'email': email})()
+
+            return MockSession(email)
+
         try:
             response = self.client.auth.sign_in_with_password({
                 "email": email,

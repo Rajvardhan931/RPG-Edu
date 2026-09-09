@@ -1,10 +1,11 @@
 import os
+from pathlib import Path
 from dotenv import load_dotenv
 
-# Load .env file from the root of the server directory
-# Since run.py is in /server, and .env is usually in /server,
-# load_dotenv() without arguments works if executed from /server.
-load_dotenv()
+# Load .env file from the server directory explicitly
+# Path: server/app/utils/config.py -> server/app/utils/ -> server/app/ -> server/
+env_path = Path(__file__).parent.parent.parent / '.env'
+load_dotenv(dotenv_path=env_path)
 
 class Config:
     """
