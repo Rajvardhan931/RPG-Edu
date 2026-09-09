@@ -21,6 +21,19 @@ class UserRepository(BaseRepository):
         filters = {"id": user_id}
         return self.update(self.TABLE, filters=filters, data=data)
 
+    def update_ai_settings(self, user_id: str, goal: str = None, enabled: bool = None, path_id: str = None):
+        """
+        Specifically updates AI goal and guidance settings.
+        """
+        data = {}
+        if goal is not None: data["current_goal"] = goal
+        if enabled is not None: data["ai_guidance_enabled"] = enabled
+        if path_id is not None: data["current_path_id"] = path_id
+
+        if not data: return None
+        return self.update_profile_data(user_id, data)
+
+
     def create_profile(self, user_id: str, username: str):
         """
         Initializes a new character profile upon signup.
@@ -33,6 +46,7 @@ class UserRepository(BaseRepository):
             "knowledge_level": 1,
             "capability_level": 1,
             "total_xp": 0,
-            "class_type": "Novice"
+            "class_type": "Novice",
+            "ai_guidance_enabled": False
         }
         return self.insert(self.TABLE, data)

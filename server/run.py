@@ -4,6 +4,7 @@ from app.api.auth import auth_bp
 from app.api.user import user_bp
 from app.api.skills import skills_bp
 from app.api.quests import quests_bp
+from app.api.learning import learning_bp
 from app.utils.config import Config
 
 def create_app():
@@ -25,6 +26,7 @@ def create_app():
     app.register_blueprint(user_bp, url_prefix='/api/user')
     app.register_blueprint(skills_bp, url_prefix='/api/skills')
     app.register_blueprint(quests_bp, url_prefix='/api/quests')
+    app.register_blueprint(learning_bp, url_prefix='/api/learning')
 
     @app.route('/health')
     def health():

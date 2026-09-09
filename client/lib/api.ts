@@ -102,6 +102,13 @@ export const apiClient = {
     });
   },
 
+  async patch<T>(endpoint: string, body: any): Promise<ApiResponse<T>> {
+    return request<T>(endpoint, {
+      method: 'PATCH',
+      body: JSON.stringify(body),
+    });
+  },
+
   async delete<T>(endpoint: string): Promise<ApiResponse<T>> {
     return request<T>(endpoint, { method: 'DELETE' });
   },
