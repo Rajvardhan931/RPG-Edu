@@ -1,5 +1,7 @@
+"use client";
 import React from 'react';
 import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
 
 interface Node {
   id: string;
@@ -18,38 +20,51 @@ export default function NodeModal({ node, onClose }: { node: Node; onClose: () =
   };
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-slate-800 border-4 border-amber-600 p-8 rounded-xl max-w-lg w-full shadow-2xl relative font-mono">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div
+        className="absolute inset-0 bg-black/60 backdrop-blur-md"
+        onClick={onClose}
+      />
+      <div className="glass-panel p-8 rounded-2xl max-w-lg w-full shadow-2xl relative font-mono border-astral-blue/30 z-10">
+        <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-astral-blue/50" />
+        <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-astral-blue/50" />
+        <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-astral-blue/50" />
+        <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-astral-blue/50" />
+
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-slate-400 hover:text-white text-2xl"
+          className="absolute top-4 right-4 text-slate-400 hover:text-white text-xl transition-colors"
         >
           ✕
         </button>
 
         <div className="text-center mb-6">
-          <span className={`text-xs uppercase font-bold px-2 py-1 rounded ${
-            node.xp_type === 'knowledge' ? 'bg-blue-900 text-blue-300' : 'bg-emerald-900 text-emerald-300'
+          <div className={`inline-block text-xs uppercase font-bold px-3 py-1 rounded-full border ${
+            node.xp_type === 'knowledge'
+              ? 'bg-astral-blue/10 text-astral-blue border-astral-blue/30'
+              : 'bg-neon-gold/10 text-neon-gold border-neon-gold/30'
           }`}>
             {node.xp_type} Quest
-          </span>
-          <h2 className="text-3xl font-bold text-white mt-2">{node.name}</h2>
+          </div>
+          <h2 className="text-3xl font-bold text-white mt-4 neon-text-blue">
+            {node.name}
+          </h2>
         </div>
 
-        <p className="text-slate-300 text-center italic mb-8">
+        <p className="text-slate-300 text-center italic mb-8 leading-relaxed">
           "{node.description}"
         </p>
 
-        <div className="flex justify-between items-center bg-slate-900 p-4 rounded-lg border border-slate-700 mb-8">
+        <div className="flex justify-between items-center bg-black/40 p-5 rounded-xl border border-white/10 mb-8 backdrop-blur-sm">
           <div className="text-left">
-            <p className="text-xs text-slate-500 uppercase font-bold">Reward</p>
-            <p className="text-xl font-bold text-amber-400">{node.xp_reward} XP</p>
+            <p className="text-xs text-slate-500 uppercase font-bold tracking-widest">Reward</p>
+            <p className="text-2xl font-bold neon-text-gold">{node.xp_reward} XP</p>
           </div>
           <div className="text-right">
-            <p className="text-xs text-slate-500 uppercase font-bold">Status</p>
-            <p className={`text-sm font-bold uppercase ${
-              node.user_status === 'completed' ? 'text-emerald-400' :
-              node.user_status === 'unlocked' ? 'text-amber-400' : 'text-slate-500'
+            <p className="text-xs text-slate-500 uppercase font-bold tracking-widest">Status</p>
+            <p className={`text-sm font-bold uppercase tracking-wider ${
+              node.user_status === 'completed' ? 'text-neon-gold' :
+              node.user_status === 'unlocked' ? 'text-astral-blue' : 'text-slate-600'
             }`}>
               {node.user_status}
             </p>
@@ -59,10 +74,10 @@ export default function NodeModal({ node, onClose }: { node: Node; onClose: () =
         <button
           disabled={node.user_status === 'completed' || node.user_status === 'locked'}
           onClick={handleEmbark}
-          className={`w-full py-3 rounded font-bold uppercase tracking-widest transition-all ${
+          className={`w-full py-4 rounded-xl font-bold uppercase tracking-widest transition-all relative overflow-hidden ${
             node.user_status === 'completed'
-              ? 'bg-slate-700 text-slate-500 cursor-not-allowed'
-              : 'bg-amber-600 hover:bg-amber-500 text-white border-b-4 border-amber-800 active:border-b-0 active:translate-y-1'
+              ? 'bg-slate-800 text-slate-600 cursor-not-allowed'
+              : 'bg-astral-blue/20 text-astral-blue border-2 border-astral-blue/50 hover:bg-astral-blue/40 active:scale-95'
           }`}
         >
           {node.user_status === 'completed' ? 'Mastered' : 'Embark on Quest'}

@@ -3,12 +3,19 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { apiClient } from '@/lib/api';
 import LevelUpModal from '@/components/LevelUpModal';
+import VortexOverlay from '@/components/VortexOverlay';
+import TransmutationOverlay from '@/components/TransmutationOverlay';
+import { AnimatePresence } from 'framer-motion';
 
 interface Quest {
   title: string;
   description: string;
   requirement_type: string;
   reward_xp: number;
+}
+
+interface SubmissionResponse {
+  reward: number;
 }
 
 export default function QuestPage() {
@@ -19,6 +26,7 @@ export default function QuestPage() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [showLevelUp, setShowLevelUp] = useState(false);
+  const [showTransmutation, setShowTransmutation] = useState(false);
   const [rewardXp, setRewardXp] = useState(0);
 
   useEffect(() => {
@@ -38,7 +46,7 @@ export default function QuestPage() {
     e.preventDefault();
     setSubmitting(true);
 
-    const response = await apiClient.post('/quests/submit', {
+    const response = await apiClient.post<SubmissionResponse>('/quests/submit', {
       node_id: nodeId,
       proof: proof,
     });
@@ -48,65 +56,79 @@ export default function QuestPage() {
       setSubmitting(false);
     } else {
       setRewardXp(response.data?.reward || 0);
-      setShowLevelUp(true);
+
+      // Trigger Transmutation Effect
+      setShowTransmutation(true);
+
+      // Delay LevelUpModal to let the explosion finish
+      setTimeout(() => {
+        setShowTransmutation(false);
+        setShowLevelUp(true);
+        setSubmitting(false);
+      }, 1000);
     }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-900 text-slate-100 flex items-center justify-center font-mono">
-        <div className="animate-pulse text-amber-500 text-xl italic">Reading the quest scroll...</div>
+      <div className="min-h-screen bg-[#0A0E1A] text-slate-100 flex items-center justify-center font-mono">
+        <div className="animate-pulse neon-text-blue text-xl italic">Reading the quest scroll...</div>
       </div>
     );
   }
 
   if (!quest) {
     return (
-      <div className="min-h-screen bg-slate-900 text-slate-100 flex items-center justify-center font-mono">
+      <div className="min-h-screen bg-[#0A0E1A] text-slate-100 flex items-center justify-center font-mono">
         <div className="text-center">
           <p className="text-red-400 mb-4">This quest has vanished from the realm.</p>
-          <button onClick={() => router.push('/map')} className="text-amber-500 underline">Return to Map</button>
+          <button onClick={() => router.push('/map')} className="text-neon-gold underline">Return to Map</button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 p-8 font-mono">
-      <div className="max-w-2xl mx-auto">
+    <div className="min-h-screen bg-[#0A0E1A] text-slate-100 p-8 font-mono relative overflow-hidden">
+      <AnimatePresence>
+        {submitting && <VortexOverlay />}
+        {showTransmutation && <TransmutationOverlay />}
+      </AnimatePresence>
+
+      <div className="max-w-2xl mx-auto relative z-10">
         <button
           onClick={() => router.push('/map')}
-          className="text-amber-400 hover:text-amber-300 mb-8 transition-colors flex items-center gap-2"
+          className="text-astral-blue hover:text-white mb-8 transition-colors flex items-center gap-2 uppercase text-xs font-bold tracking-widest"
         >
           ← Back to Map
         </button>
 
-        <div className="bg-slate-800 border-4 border-amber-600 p-8 rounded-xl shadow-2xl">
+        <div className="glass-panel p-8 rounded-2xl shadow-2xl border-2 border-astral-blue/30">
           <div className="text-center mb-8">
-            <span className="text-xs uppercase font-bold px-2 py-1 rounded bg-amber-900 text-amber-300">Active Quest</span>
-            <h1 className="text-3xl font-bold text-white mt-4">{quest.title}</h1>
+            <span className="text-xs uppercase font-bold px-3 py-1 rounded-full bg-astral-blue/20 text-astral-blue border border-astral-blue/30">Active Quest</span>
+            <h1 className="text-3xl font-bold text-white mt-4 neon-text-blue">{quest.title}</h1>
           </div>
 
-          <div className="bg-slate-900 p-6 rounded-lg border border-slate-700 mb-8 italic text-slate-300">
+          <div className="bg-black/40 p-6 rounded-lg border border-white/10 mb-8 italic text-slate-300 leading-relaxed">
             {quest.description}
           </div>
 
           <div className="grid grid-cols-2 gap-4 mb-8">
-            <div className="bg-slate-700/50 p-3 rounded text-center">
+            <div className="bg-white/5 p-3 rounded-lg border border-white/10 text-center">
               <p className="text-xs text-slate-400 uppercase font-bold">Requirement</p>
-              <p className="text-white font-bold uppercase">{quest.requirement_type}</p>
+              <p className="text-white font-bold uppercase tracking-wide">{quest.requirement_type}</p>
             </div>
-            <div className="bg-slate-700/50 p-3 rounded text-center">
+            <div className="bg-white/5 p-3 rounded-lg border border-white/10 text-center">
               <p className="text-xs text-slate-400 uppercase font-bold">Reward</p>
-              <p className="text-amber-400 font-bold">{quest.reward_xp} XP</p>
+              <p className="neon-text-gold font-bold">{quest.reward_xp} XP</p>
             </div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-sm font-semibold text-amber-400 mb-2">Proof of Mastery (GitHub Link / Text)</label>
+              <label className="block text-sm font-semibold text-astral-blue mb-2 uppercase tracking-widest">Proof of Mastery</label>
               <textarea
-                className="w-full bg-slate-700 border-2 border-slate-600 p-3 rounded h-32 focus:border-amber-500 outline-none transition-colors"
+                className="w-full bg-black/40 border-2 border-white/10 p-3 rounded-lg h-32 focus:border-astral-blue outline-none transition-all text-slate-200 placeholder:text-slate-600"
                 value={proof}
                 onChange={(e) => setProof(e.target.value)}
                 placeholder="Paste your link or evidence here..."
@@ -117,9 +139,9 @@ export default function QuestPage() {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-3 rounded uppercase tracking-widest transition-all border-b-4 border-amber-800 active:border-b-0 active:translate-y-1 disabled:opacity-50"
+              className="w-full bg-astral-blue/20 hover:bg-astral-blue/40 text-astral-blue font-bold py-4 rounded-lg uppercase tracking-widest transition-all border-2 border-astral-blue/50 active:scale-95 disabled:opacity-50"
             >
-              {submitting ? 'Validating...' : 'Submit Proof'}
+              {submitting ? 'Transmuting...' : 'Submit Proof'}
             </button>
           </form>
         </div>
