@@ -142,19 +142,20 @@ export default function SkillTree({ nodes }: { nodes: Node[] }) {
               onClick={() => setSelectedNode(node)}
               className="cursor-pointer group"
             >
-              <motion.circle
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                whileHover={{ scale: 1.2, filter: 'brightness(1.2)' }}
-                cx={pos.x}
-                cy={pos.y}
-                r={NODE_RADIUS}
-                fill={`url(#${fillId})`}
-                stroke={strokeColor}
-                strokeWidth="3"
-                filter="url(#glow)"
-                className="transition-all duration-300"
-              />
+              <g filter="url(#glow)">
+                <motion.circle
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  whileHover={{ scale: 1.2, filter: 'brightness(1.2)' }}
+                  cx={pos.x}
+                  cy={pos.y}
+                  r={NODE_RADIUS}
+                  fill={`url(#${fillId})`}
+                  stroke={strokeColor}
+                  strokeWidth="3"
+                  className="transition-all duration-300"
+                />
+              </g>
 
               {/* Node Label */}
               <foreignObject
