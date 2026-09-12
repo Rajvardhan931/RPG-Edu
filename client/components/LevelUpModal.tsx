@@ -1,6 +1,7 @@
 "use client";
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { soundManager } from '@/lib/sound-manager';
 
 interface LevelUpProps {
   xpGained: number;
@@ -8,6 +9,10 @@ interface LevelUpProps {
 }
 
 export default function LevelUpModal({ xpGained, onClose }: LevelUpProps) {
+  useEffect(() => {
+    soundManager.playSound('LEVEL_UP');
+  }, []);
+
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
       {/* Immersive Backdrop */}
@@ -16,6 +21,7 @@ export default function LevelUpModal({ xpGained, onClose }: LevelUpProps) {
         animate={{ opacity: 1 }}
         className="absolute inset-0 bg-black/90 backdrop-blur-xl"
       />
+
 
       {/* Level Up Card */}
       <motion.div

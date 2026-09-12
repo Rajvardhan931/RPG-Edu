@@ -3,7 +3,8 @@ import React, { useEffect, useState } from 'react';
 import { apiClient } from '@/lib/api';
 import ProfileCard from '@/components/ProfileCard';
 import { useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { soundManager } from '@/lib/sound-manager';
 
 interface UserStats {
   username: string;
@@ -27,6 +28,7 @@ export default function Dashboard() {
   const [stats, setStats] = useState<UserStats | null>(null);
   const [questLog, setQuestLog] = useState<QuestLogEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isAvatarExpanded, setIsAvatarExpanded] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -66,6 +68,19 @@ export default function Dashboard() {
     fetchDashboardData();
   }, [router]);
 
+  useEffect(() => {
+    const handleContextMenu = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      // Check if the clicked element is an image, or inside a rounded-full div (our avatars)
+      if (target.tagName === 'IMG' || target.closest('.rounded-full')) {
+        soundManager.playSound('CONTEXT_MENU');
+      }
+    };
+
+    window.addEventListener('contextmenu', handleContextMenu);
+    return () => window.removeEventListener('contextmenu', handleContextMenu);
+  }, []);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0A0E1A] text-slate-100 flex items-center justify-center font-mono">
@@ -104,9 +119,18 @@ export default function Dashboard() {
       </div>
 
       <header className="max-w-6xl mx-auto flex justify-between items-center mb-16 mt-4">
-        <div className="relative">
-          <h1 className="text-4xl font-bold neon-text-blue uppercase tracking-tighter">The Cosmic Archive</h1>
-          <p className="text-slate-500 italic text-sm tracking-wide">Digital Grimoire of Universal Mastery</p>
+        <div className="relative flex items-center gap-4">
+          <div className="w-12 h-12 rounded-full p-[1px] bg-gradient-to-tr from-cyan-500 to-blue-600 shadow-[0_0_10px_#00D4FF] ring-1 ring-cyan-400/50 overflow-hidden">
+            <img
+              src="https://wallpapercat.com/w/full/6/9/f/319983-3840x2160-desktop-4k-iron-man-background.jpg"
+              alt="Logo"
+              className="w-full h-full object-cover bg-slate-900"
+            />
+          </div>
+          <div>
+            <h1 className="text-4xl font-bold neon-text-blue uppercase tracking-tighter">The Cosmic Archive</h1>
+            <p className="text-slate-500 italic text-sm tracking-wide">Digital Grimoire of Universal Mastery</p>
+          </div>
           <div className="absolute -left-4 top-0 w-1 h-full bg-astral-blue" />
         </div>
         <button
@@ -122,11 +146,34 @@ export default function Dashboard() {
 
       <main className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-1">
-          <ProfileCard data={stats} />
+          <ProfileCard
+            data={stats}
+            onAvatarClick={() => {
+              soundManager.playSound('SYNC_EXPAND');
+              setIsAvatarExpanded(true);
+            }}
+          />
         </div>
 
         <div className="lg:col-span-2 space-y-8">
+          {/* SOUND DEBUG PANEL (Temporary) */}
+          <div className="glass-panel p-4 rounded-2xl border-red-500/30 bg-red-500/5">
+            <h3 className="text-xs font-bold text-red-400 uppercase mb-3 tracking-widest">Audio Diagnostic Center</h3>
+            <div className="flex flex-wrap gap-2">
+              {(['SYNC_EXPAND', 'LEVEL_UP', 'UI_CLICK', 'ERROR', 'CONTEXT_MENU'] as const).map(sound => (
+                <button
+                  key={sound}
+                  onClick={() => soundManager.playSound(sound)}
+                  className="text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1 rounded border border-slate-600 transition-colors"
+                >
+                  Test {sound}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className="glass-panel p-6 rounded-2xl relative overflow-hidden">
+
             <div className="absolute top-0 right-0 p-2">
               <div className="w-2 h-2 bg-astral-blue rounded-full animate-ping" />
             </div>
@@ -138,7 +185,10 @@ export default function Dashboard() {
             </div>
             <button
               className="mt-6 bg-astral-blue/20 hover:bg-astral-blue/40 text-astral-blue font-bold py-3 px-8 rounded-lg uppercase tracking-widest transition-all border border-astral-blue/50 hover:shadow-[0_0_15px_rgba(0,212,255,0.4)] active:scale-95"
-              onClick={() => router.push('/map')}
+              onClick={() => {
+                soundManager.playSound('UI_CLICK');
+                router.push('/map');
+              }}
             >
               Open Celestial Map
             </button>
@@ -190,6 +240,49 @@ export default function Dashboard() {
           </div>
         </div>
       </main>
+
+      <AnimatePresence>
+        {isAvatarExpanded && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-md bg-black/60 cursor-pointer"
+            onClick={() => setIsAvatarExpanded(false)}
+          >
+            <motion.div
+              initial={{ scale: 0, opacity: 0, y: 100 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0, opacity: 0, y: 100 }}
+              transition={{ type: "spring", damping: 20, stiffness: 100 }}
+              className="relative group"
+            >
+              {/* Huge Arc Reactor Glow */}
+              <div className="absolute -inset-8 bg-gradient-to-tr from-cyan-500 to-blue-600 rounded-full blur-3xl opacity-50 animate-glow" />
+
+              {/* Large Avatar */}
+              <div className="relative w-64 h-64 rounded-full p-2 bg-gradient-to-tr from-cyan-500 to-blue-600 shadow-[0_0_50px_#00D4FF] ring-4 ring-cyan-400/50 overflow-hidden">
+                <img
+                  src="https://wallpapercat.com/w/full/6/9/f/319983-3840x2160-desktop-4k-iron-man-background.jpg"
+                  alt="Iron Man 2D Avatar"
+                  className="w-full h-full object-cover bg-slate-900"
+                />
+              </div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="absolute -bottom-12 left-1/2 -translate-x-1/2 whitespace-nowrap"
+              >
+                <p className="text-astral-blue text-xl font-bold uppercase tracking-[0.3em] neon-text-blue">
+                  Identity Verified
+                </p>
+              </motion.div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

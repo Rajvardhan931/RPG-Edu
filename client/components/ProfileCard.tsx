@@ -11,7 +11,7 @@ interface ProfileStats {
   };
 }
 
-export default function ProfileCard({ data }: { data: ProfileStats }) {
+export default function ProfileCard({ data, onAvatarClick }: { data: ProfileStats; onAvatarClick?: () => void }) {
   const renderBar = (label: string, level: number, xp: number, color: string) => (
     <div className="mb-4">
       <div className="flex justify-between items-end mb-1">
@@ -33,14 +33,24 @@ export default function ProfileCard({ data }: { data: ProfileStats }) {
   return (
     <div className="bg-slate-800 border-2 border-amber-600/50 p-6 rounded-xl shadow-lg text-slate-100 w-full max-w-sm">
       <div className="flex items-center gap-4 mb-6">
-        <div className="w-16 h-16 bg-slate-700 border-2 border-amber-500 rounded-full flex items-center justify-center text-2xl font-bold text-amber-400">
-          {data.username[0].toUpperCase()}
+        <div
+          onClick={onAvatarClick}
+          className="relative w-16 h-16 rounded-full p-[2px] bg-gradient-to-tr from-cyan-500 to-blue-600 shadow-[0_0_15px_#00D4FF,0_0_30px_#00D4FF] ring-2 ring-cyan-400/50 cursor-pointer transition-transform hover:scale-110 active:scale-95 animate-glow"
+        >
+          <div className="w-full h-full rounded-full overflow-hidden border-2 border-slate-900 bg-slate-800">
+            <img
+              src="https://wallpapercat.com/w/full/6/9/f/319983-3840x2160-desktop-4k-iron-man-background.jpg"
+              alt="Iron Man Avatar"
+              className="w-full h-full object-cover"
+            />
+          </div>
         </div>
         <div>
           <h2 className="text-xl font-bold text-white">{data.username}</h2>
           <p className="text-amber-500 text-sm italic font-semibold">{data.class}</p>
         </div>
       </div>
+
 
       <div className="space-y-2">
         {renderBar('Knowledge (Knowing)', data.stats.knowledge.level, data.stats.knowledge.xp, 'bg-blue-500')}
