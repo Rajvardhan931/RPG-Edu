@@ -23,8 +23,8 @@ class AuthService:
 
         try:
             # Supabase admin client can get user by JWT
-            user = self.client.auth.get_user(token)
-            return user
+            response = self.client.auth.get_user(token)
+            return response.user if response and response.user else None
         except Exception as e:
             print(f"Token verification failed: {e}")
             return None
